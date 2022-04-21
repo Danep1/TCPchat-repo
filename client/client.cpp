@@ -27,7 +27,7 @@ int main(int argc, char* argv[])
 	}
 	else if (argc > 2)
 	{
-		std::cerr << "Too many parametrs" << std::endl;
+		std::cerr << "Too many parameters" << std::endl;
 	}
 
 	constexpr auto port = 15150U;
@@ -46,12 +46,16 @@ int main(int argc, char* argv[])
 	}
 	catch (boost::system::system_error& e)
 	{
-		std::cout << "Error occured! Error code = " << e.code() << ". Message: " << e.what() << std::endl;
+		std::cerr << "Error occured! Error code = " << e.code() << ". Message: " << e.what() << std::endl;
 
 		system("pause");
 
 		return e.code().value();
 	}
-
+	catch (...)
+	{
+		std::cerr << "Error occured! Unknown error!" << std::endl;
+		terminate();
+	}
 	return EXIT_SUCCESS;
 }

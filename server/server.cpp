@@ -55,19 +55,19 @@ int main(int argc, char* argv[])
 		acceptor.accept(socket);
 
 		Chat(socket).run();
-
-		std::cout << "Server shutdown" << std::endl;
 	}
 	catch (boost::system::system_error& e)
 	{
-		std::cout << "Error occured! Error code = " << e.code() << ". Message: " << e.what() << std::endl;
+		std::cerr << "Error occured! Error code = " << e.code() << ". Message: " << e.what() << std::endl;
 
 		system("pause");
 
 		return e.code().value();
 	}
-
-	system("pause");
-
+	catch (...)
+	{
+		std::cerr << "Error occured! Unknown error!" << std::endl;
+		terminate();
+	}
 	return EXIT_SUCCESS;
 }
