@@ -26,10 +26,11 @@ private:
 private:
 
 public:
-    explicit Chat(socket_t & socket) : socket_(socket)
+    explicit Chat(socket_t & socket) : socket_(socket), exit_flag_(false)
     {
         std::cout << "Enter your name: ";
         std::cin >> user_name_;
+        std::cout << "To close chat enter '!exit'" << std::endl;
     }
 
     void run()
@@ -45,7 +46,6 @@ public:
         reader.join();
 
         send_message(user_name_ + "left the chat!\n");
-
     }
 
 private:

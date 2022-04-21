@@ -30,11 +30,13 @@ std::string read_data_until(boost::asio::ip::tcp::socket& socket)
 
 int main(int argc, char* argv[])
 {
+	system("chcp 1251");
+
 	std::cout << "Server launched\n";
 
 	constexpr auto max_clients = 10ULL;
 
-	constexpr auto port = 8888U;
+	constexpr auto port = 15150U;
 
 	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
 

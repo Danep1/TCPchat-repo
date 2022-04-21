@@ -12,23 +12,29 @@ void write_data(boost::asio::ip::tcp::socket& socket)
 	boost::asio::write(socket, boost::asio::buffer(data));
 }
 
-int main(int argc, char** argv)
+int main(int argc, char* argv[])
 {
+	system("chcp 1251");
+
 	std::cout << "Client launched\n";
 
 	std::string raw_ip_address = "127.0.0.1";
 
-	if (!argc)
+	// parsing arguments from cmd
+	if (argc == 2)
 	{
-		raw_ip_address = std::string(*argv, *argv + argc);
+		raw_ip_address = std::string(argv[1]);
+	}
+	else if (argc > 2)
+	{
+		std::cerr << "Too many parametrs" << std::endl;
 	}
 
-	auto port = 8888ULL;
+	constexpr auto port = 15150U;
 
 	try
 	{
-		boost::asio::ip::tcp::endpoint endpoint(
-			boost::asio::ip::address::from_string(raw_ip_address), port);
+		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address::from_string(raw_ip_address), port);
 
 		boost::asio::io_service io_service;
 
