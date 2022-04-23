@@ -3,71 +3,54 @@
 #include <boost/asio.hpp>
 #include "../Chat.hpp"
 
-std::string read_data(boost::asio::ip::tcp::socket& socket)
+class ServerChat
 {
-	const std::size_t length = 10;
-	char buffer[length];
-	boost::asio::read(socket, boost::asio::buffer(buffer, length));
-	return std::string(buffer, length);
-}
+public:
+	explicit ServerChat(int port, int max_connections)
+	{
+		boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
 
-std::string read_data_until(boost::asio::ip::tcp::socket& socket)
-{
-	boost::asio::streambuf buffer;
+		boost::asio::io_service io_service;
 
-	boost::asio::read_until(socket, buffer, '!');
+		try
+		{
+			boost::asio::ip::tcp::acceptor acceptor(io_service, endpoint.protocol());
 
-	std::string message;
+			acceptor.bind(endpoint);
 
-	// Because buffer 'buf' may contain some other data
-	// after '\n' symbol, we have to parse the buffer and
-	// extract only symbols before the delimiter.
-	std::istream input_stream(&buffer);
-	std::getline(input_stream, message, '!');
+			acceptor.listen(max_connections);
 
-	return message;
-}
+			boost::asio::ip::tcp::socket socket(io_service);
+
+			acceptor.accept(socket);
+
+			Chat(socket).run();
+		}
+		catch (const boost::system::system_error& e)
+		{
+			std::cerr << "Error occured! Error code = " << e.code() << ". Message: " << e.what() << std::endl;
+
+			system("pause");
+
+			exit(e.code().value());
+		}
+		catch (...)
+		{
+			std::cerr << "Error occured! Unknown error!" << std::endl;
+			terminate();
+		}
+	}
+};
 
 int main(int argc, char* argv[])
 {
 	system("chcp 1251");
 
-	std::cout << "Server launched\n";
+	constexpr int port = 15150;
 
-	constexpr auto max_clients = 10ULL;
+	constexpr int max_connections = 10;
 
-	constexpr auto port = 15150U;
-
-	boost::asio::ip::tcp::endpoint endpoint(boost::asio::ip::address_v4::any(), port);
-
-	boost::asio::io_service io_service;
-
-	try
-	{
-		boost::asio::ip::tcp::acceptor acceptor(io_service, endpoint.protocol());
-
-		acceptor.bind(endpoint);
-
-		acceptor.listen(max_clients);
-
-		boost::asio::ip::tcp::socket socket(io_service);
-
-		acceptor.accept(socket);
-
-		Chat(socket).run();
-	}
-	catch (boost::system::system_error& e)
-	{
-		std::cerr << "Error occured! Error code = " << e.code() << ". Message: " << e.what() << std::endl;
-
-		system("pause");
-
-		return e.code().value();
-	}
-	catch (...)
-	{
-		std::cerr << "Error occured! Unknown error!" << std::endl;
-		terminate();
-	}
+	ServerChat(port, max_connections);
+	
 	return EXIT_SUCCESS;
 }

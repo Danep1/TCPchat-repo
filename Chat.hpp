@@ -21,9 +21,17 @@ private:
 public:
     explicit Chat(socket_t & socket) : socket_(socket), exit_flag_(false)
     {
-        std::cout << "Enter your name: ";
+    	std::cout << "Enter your name: ";
         std::cin >> user_name_;
         std::cout << "To close chat enter '!exit'" << std::endl;
+    }
+
+    Chat& operator=(Chat&& other) noexcept
+    {
+        socket_ = std::move(other.socket_);
+        exit_flag_ = static_cast<bool>(other.exit_flag_);
+        std::swap(user_name_, other.user_name_);
+        return *this;
     }
 
     void run()
@@ -62,7 +70,7 @@ private:
             {
                 boost::asio::read_until(socket_, buffer, '\n');
             }
-            catch (boost::system::system_error& e)
+            catch (const boost::system::system_error& e)
             {
                 switch (e.code().value())
                 {
@@ -99,9 +107,13 @@ private:
         	std::getline(std::cin, text);
 
             if (text == "!exit")
-                exit_flag_ = true;
+            {
+	            exit_flag_ = true;
+            }
             else if (!text.empty())
-                send_message(parse_message(text));
+            {
+	            send_message(parse_message(text));
+            }
         }
     }
 };
